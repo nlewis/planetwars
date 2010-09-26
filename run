@@ -1,0 +1,49 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my @bots = @ARGV[0..1];
+die "Usage: $0 bot1 bot2 [map]" unless $bots[0] and $bots[1];
+
+my $map  = $ARGV[2];
+
+my $base_dir  = '/home/nick/Projects/planetwars';
+my $maps_dir  = "$base_dir/maps";
+my $tools_dir = "$base_dir/tools";
+
+if (!$map) { 
+
+  opendir(my $DIR_FH, "$base_dir/maps") or die $!;
+  my @maps = grep { /map\d+\.txt/ } readdir($DIR_FH);
+  $map     = $maps[int(rand(scalar @maps))];
+  closedir($DIR_FH);
+
+}
+
+my $command = "java -jar $tools_dir/PlayGame.jar $maps_dir/$map 200 200 log.txt ";
+
+foreach my $bot (@bots) {
+
+  if ($bot =~ /\.py$/) {
+    $command .= "\"python $bot\" ";
+  }
+  elsif ($bot =~ /\.jar/) {
+    $command .= "\" java -jar $bot\" ";
+  }
+  else {
+    die "Unrecognized type: $bot";
+  }
+
+}
+
+$command .= " | java -jar $tools_dir/ShowGame.jar";
+#my $output = `$command`;
+system($command);
+
+print "\n     Map: $map\n";
+print "Player 1: $bots[0]\n";
+print "Player 2: $bots[1]\n";
+
+if (-f "$base_dir/PlanetWars.pyc") {
+  unlink("$base_dir/PlanetWars.pyc");
+}
