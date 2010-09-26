@@ -37,7 +37,6 @@ foreach my $bot (@bots) {
 }
 
 $command .= " | java -jar $tools_dir/ShowGame.jar";
-#my $output = `$command`;
 system($command);
 
 print "\n     Map: $map\n";
